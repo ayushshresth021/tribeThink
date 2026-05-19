@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import LogoutButton from "@/components/LogoutButton";
+import DashboardClient from "@/components/DashboardClient";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -20,10 +21,7 @@ export default async function DashboardPage() {
         </div>
       </header>
       <main className="max-w-4xl mx-auto px-6 py-12">
-        <div className="text-center py-24 text-gray-400">
-          <p className="text-lg font-medium">No analyses yet</p>
-          <p className="text-sm mt-1">Upload a video to get started</p>
-        </div>
+        <DashboardClient userId={user.id} />
       </main>
     </div>
   );

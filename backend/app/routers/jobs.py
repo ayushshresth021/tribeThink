@@ -7,8 +7,12 @@ from app.database import get_db
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
 
+MAX_VIDEO_DURATION_S = 30
+
+
 class CreateJobRequest(BaseModel):
     video_storage_path: str
+    duration_seconds: float
 
 
 class JobResponse(BaseModel):
@@ -25,6 +29,19 @@ def create_job(
     body: CreateJobRequest,
     user_id: str = Depends(get_current_user_id),
 ):
+    if body.duration_seconds > MAX_VIDEO_DURATION_S:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Video exceeds {MAX_VIDEO_DURATION_S}s limit ({body.duration_seconds:.1f}s).",
+        )
+
+    expected_prefix = f"{user_id}/"
+    if not body.video_storage_path.startswith(expected_prefix):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="video_storage_path must be scoped to the authenticated user.",
+        )
+
     db = get_db()
     result = (
         db.table("jobs")
