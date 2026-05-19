@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+backend/.env
+
+# Node
+node_modules/
+frontend/.next/
+frontend/.env.local*
+!frontend/.env.local.example
+
+# Modal
+.modal.toml
+
+# OS
+.DS_Store
