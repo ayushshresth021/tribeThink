@@ -4,12 +4,15 @@ from jose import JWTError, jwt
 
 from app.config import settings
 
-bearer_scheme = HTTPBearer()
+# auto_error=False so we can raise 401 (not 403) for missing credentials.
+bearer_scheme = HTTPBearer(auto_error=False)
 
 
 def get_current_user_id(
-    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> str:
+    if credentials is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     token = credentials.credentials
     try:
         payload = jwt.decode(

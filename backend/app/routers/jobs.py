@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 from app.auth import get_current_user_id
 from app.database import get_db
+from app.services.inference import spawn_inference_job
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
@@ -53,7 +54,14 @@ def create_job(
         .execute()
     )
     job = result.data[0]
-    return {"job_id": job["id"]}
+    job_id = job["id"]
+
+    try:
+        spawn_inference_job(job_id, body.video_storage_path)
+    except Exception:
+        pass  # fire-and-forget — Modal unavailability must not break job creation
+
+    return {"job_id": job_id}
 
 
 @router.get("/{job_id}", response_model=JobResponse)
